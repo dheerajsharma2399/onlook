@@ -43,6 +43,7 @@ Run from the repo root. Bun is the package manager and script runner, Turborepo 
 | `bun run showroom <name>` | One renderer component on scratch state (`--list` names them). |
 | `bun run translate` | Translates new or changed English strings into every language with a guide in `packages/i18n/src/translate/` (`shared.md` goes with each), and prints what the run cost. `--dry-run` lists what would be sent and costs nothing; `--locale`, `--redo <key\|prefix.*>` and `--accept` are in `--help`. It spends tokens and needs `ANTHROPIC_API_KEY`. A PR doesn't wait on it: write the translations by hand (Other languages, below). |
 | `bun run build:dmg` | Builds macOS installers with `scripts/cut-dmg.ts`. |
+| `bun run build:linux` | Builds the Linux deb and AppImage for this machine with `scripts/cut-linux.ts`. |
 
 ## Layout
 

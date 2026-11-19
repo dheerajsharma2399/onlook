@@ -73,9 +73,9 @@ open-source alternative to Figma, V0, Replit Agent, Base 44, Webflow, etc.
 
 * macOS (Apple Silicon · Intel x64) → [Download](https://www.onlook.com/install)
 * Windows – Coming soon. Join the [Windows waitlist here](https://www.onlook.com/waitlist?os=windows) and be emailed when we have updates.
-* Linux – No Linux artifact is published and we're still gauging demand for Linux. Join the [Linux waitlist here](https://www.onlook.com/waitlist?os=linux) and be emailed when we have updates. 
+* Linux – No signed artifact is published. Build and install the deb or AppImage from source with [LINUX_BUILD.md](LINUX_BUILD.md).
 
-🧑‍💻 Build from source – [SOURCE_BUILD.md](SOURCE_BUILD.md) covers building and running Onlook on a Mac. No Onlook account or cloud keys needed.
+🧑‍💻 Build from source – [SOURCE_BUILD.md](SOURCE_BUILD.md) for Mac, or [LINUX_BUILD.md](LINUX_BUILD.md) for Linux. No Onlook account or cloud keys needed.
 
 ## How it works
 

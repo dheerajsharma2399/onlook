@@ -1,5 +1,7 @@
 # Build Onlook Source on a Mac
 
+On this page, Mac. For Linux, including the deb and AppImage installers, see [LINUX_BUILD.md](LINUX_BUILD.md).
+
 Onlook Source runs locally without an Onlook account, email address, cloud keys or `.env` file. To chat, connect your own Claude Code or Codex account during setup. Those providers have their own account and subscription requirements.
 
 ## Prerequisites

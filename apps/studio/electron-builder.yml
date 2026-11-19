@@ -83,6 +83,34 @@ nsis:
   allowToChangeInstallationDirectory: true
   differentialPackage: true
 
+linux:
+  target:
+    # deb is the primary install on Ubuntu 24.04: its post-install script
+    # registers the AppArmor profile unprivileged user namespaces need.
+    # AppImage needs libfuse2 (or --no-sandbox) on that same release.
+    # No arch lists: each machine builds its own architecture, because
+    # node-pty is compiled for the host and does not cross-build.
+    - target: deb
+    - target: AppImage
+  artifactName: Onlook-Source-${version}-${arch}.${ext}
+  executableName: onlook-source
+  syncDesktopName: true
+  icon: build/icon.png
+  category: Development
+  synopsis: Design on your own codebase with an AI agent
+  description: Onlook is a local-first editor for designing in code with an AI agent.
+  maintainer: Onlook <contact@onlook.com>
+  vendor: Onlook
+  files:
+    - '!node_modules/@anthropic-ai/claude-agent-sdk-!(linux-${arch}){,/**}'
+  desktop:
+    entry:
+      Name: Onlook Source
+      Comment: Design on your own codebase with an AI agent
+      Categories: Development;Design;
+      Keywords: design;code;ai;editor;
+      StartupWMClass: onlook-source
+
 dmg:
   artifactName: ${productName}-${version}-${arch}.${ext}
   # Points at the 1x. electron-builder finds `<name>@2x.<ext>` beside it and

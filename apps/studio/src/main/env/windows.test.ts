@@ -42,4 +42,7 @@ test('unreadable or fabricated process identities never become owned processes',
   expect(codexPlatformTag('win32', 'x64')).toBe('win32-x64');
   expect(codexPlatformTag('win32', 'arm64')).toBeUndefined();
   expect(codexPlatformTag('darwin', 'arm64')).toBe('darwin-arm64');
+  expect(codexPlatformTag('linux', 'x64')).toBe('linux-x64');
+  expect(codexPlatformTag('linux', 'arm64')).toBe('linux-arm64');
+  expect(codexPlatformTag('linux', 'ia32')).toBeUndefined();
 });

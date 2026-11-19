@@ -4,7 +4,7 @@ import { afterEach, describe, expect, it } from 'bun:test';
 
 import { codexInstallRoot } from './paths.js';
 
-const KEYS = ['STUDIO_CODEX_CACHE_ROOT', 'STUDIO_STATE_ROOT'] as const;
+const KEYS = ['STUDIO_CODEX_CACHE_ROOT', 'STUDIO_STATE_ROOT', 'XDG_CACHE_HOME'] as const;
 const saved = Object.fromEntries(KEYS.map((key) => [key, process.env[key]]));
 
 function setEnv(values: Partial<Record<(typeof KEYS)[number], string>>): void {
@@ -36,6 +36,18 @@ describe('where codex installs', () => {
 
   it('in the machine cache when nothing redirects it', () => {
     setEnv({});
-    expect(codexInstallRoot('1.0.0')).toBe(join(homedir(), 'Library', 'Caches', 'onlook-studio', 'codex-1.0.0'));
+    const cache =
+      process.platform === 'win32'
+        ? join(process.env['LOCALAPPDATA'] ?? join(homedir(), 'AppData', 'Local'), 'onlook-studio', 'Cache')
+        : process.platform === 'linux'
+          ? join(homedir(), '.cache', 'onlook-studio')
+          : join(homedir(), 'Library', 'Caches', 'onlook-studio');
+    expect(codexInstallRoot('1.0.0')).toBe(join(cache, 'codex-1.0.0'));
+  });
+
+  it('honours XDG_CACHE_HOME on linux', () => {
+    if (process.platform !== 'linux') return;
+    setEnv({ XDG_CACHE_HOME: '/scratch/xdg' });
+    expect(codexInstallRoot('1.0.0')).toBe('/scratch/xdg/onlook-studio/codex-1.0.0');
   });
 });
