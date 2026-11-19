@@ -2,7 +2,9 @@ import { mkdir, mkdtemp, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
-import { CODEX_API_KEY_PLAN } from '@studio/events';
+import { CODEX_API_KEY_PLAN, CODEX_CUSTOM_PROVIDER_PLAN } from '@studio/events';
+import { codexProviderConfig, codexProviderEnv } from '../custom-provider/codex.js';
+import type { ActiveCustomProvider } from '../custom-provider/store.js';
 
 import { checkHealth, resolveCodex } from '../agent-host/appserver/resolve.js';
 import { appServerToolSpecs, inertToolSinks } from '../agent-host/appserver/tools.js';
@@ -105,6 +107,7 @@ export interface ValidateOptions {
   root: string;
   /** Test seam: a scratch home is logged out, so the product validates the real one. */
   codexHome?: string;
+  provider?: ActiveCustomProvider;
 }
 
 export async function validateCodex(options: ValidateOptions): Promise<ValidationResult> {
@@ -132,7 +135,8 @@ export async function validateCodex(options: ValidateOptions): Promise<Validatio
     {
       bin: resolved.bin,
       cwd,
-      env,
+      env: options.provider === undefined ? env : codexProviderEnv(options.provider, env),
+      ...(options.provider === undefined ? {} : { config: codexProviderConfig(options.provider) }),
       ...(options.codexHome === undefined ? {} : { codexHome: options.codexHome }),
     },
     {
@@ -171,10 +175,11 @@ export async function validateCodex(options: ValidateOptions): Promise<Validatio
 
     transport.notify('initialized');
 
-    const account = accountVerdict(
-      // `refreshToken: true` here writes refreshed tokens back into the user's auth.json.
-      (await transport.request('account/read', {}, REQUEST_TIMEOUT_MS)) as AccountResponse,
-    );
+    // `refreshToken: true` here writes refreshed tokens back into the user's auth.json.
+    const accountResponse = (await transport.request('account/read', {}, REQUEST_TIMEOUT_MS)) as AccountResponse;
+    const account = options.provider !== undefined && accountResponse.requiresOpenaiAuth === false
+      ? { usable: true, description: 'using a custom provider', plan: CODEX_CUSTOM_PROVIDER_PLAN }
+      : accountVerdict(accountResponse);
     if (!account.usable) {
       return {
         outcome: 'signed-out',

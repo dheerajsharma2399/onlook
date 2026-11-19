@@ -94,6 +94,7 @@ import type {
   SettingsDefaults,
   SettingsState,
 } from './settings.js';
+import type { CustomProviderState, SaveCustomProviderRequest, SaveCustomProviderResult } from './custom-provider.js';
 import type {
   DiscoveredWorktree,
   OpenProjectRequest,
@@ -290,6 +291,9 @@ export const CHANNELS = {
     settingsResetTips: { name: 'settings:resetTips', from: TAB, request: none, response: of<SettingsState>(), tab: 'settingsResetTips' },
     settingsDefaults: { name: 'settings:defaults', from: TAB, request: none, response: of<SettingsDefaults>(), tab: 'settingsDefaults' },
     settingsSetDefault: { name: 'settings:setDefault', from: TAB, request: one<SetDefaultRequest>(), response: of<SettingsDefaults>(), tab: 'settingsSetDefault' },
+    customProviderState: { name: 'customProvider:state', from: TAB, request: none, response: of<CustomProviderState>(), tab: 'customProviderState' },
+    customProviderSave: { name: 'customProvider:save', from: TAB, request: one<SaveCustomProviderRequest>(), response: of<SaveCustomProviderResult>(), tab: 'customProviderSave' },
+    customProviderRemove: { name: 'customProvider:remove', from: TAB, request: none, response: of<CustomProviderState>(), tab: 'customProviderRemove' },
     /** The same key and off-switch as main's pipeline; the renderer reads no env var and mints no id. */
     telemetryConfig: { name: 'telemetry:config', from: TAB, request: none, response: of<TelemetryConfig>(), tab: 'telemetryConfig' },
     telemetryConsent: { name: 'telemetry:consent', from: TAB, request: none, response: of<boolean | null>(), tab: 'telemetryConsent' },

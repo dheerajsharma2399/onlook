@@ -20,6 +20,7 @@ import { startChatGptLogin, type LoginHandle } from './login.js';
 import { CodexSetupMachine } from './machine.js';
 import { CODEX_VERSION, codexCacheRoot, codexInstallRoot } from './paths.js';
 import { validateCodex, type ValidationFailure } from './validate.js';
+import { activeCustomProvider } from '../custom-provider/store.js';
 import { log } from '../log/index.js';
 import { hostPlatform } from '../env/platform.js';
 import { devSwitches } from '../env/dev-switches.js';
@@ -173,6 +174,19 @@ class CodexHost {
     return { accepted: true };
   }
 
+  /** A provider change decides whether an account is needed, so the held verdict is re-read. */
+  revalidate(): void {
+    if (pinnedSetup() !== undefined || this.login !== undefined) return;
+    if (this.acquisition !== undefined) {
+      void this.acquisition.promise.then(() => this.revalidate());
+      return;
+    }
+    const root = codexInstallRoot();
+    const resolved = resolveCodex(root);
+    if (resolved === null || !checkHealth(resolved, root).ok) return;
+    void this.startAcquisition('silent', root);
+  }
+
   signIn(entryPoint?: SetupEntryPoint, browserId?: string): { accepted: boolean } {
     if (pinnedSetup() !== undefined) return { accepted: true };
     if (this.login !== undefined) return { accepted: true };
@@ -301,7 +315,8 @@ class CodexHost {
     if (!this.owns(owner)) return;
     if (owner.kind === 'login' || owner.mode === 'explicit') this.machine.validating();
     try {
-      const result = await (this.options.validate ?? validateCodex)({ root });
+      const provider = activeCustomProvider();
+      const result = await (this.options.validate ?? validateCodex)({ root, ...(provider === undefined ? {} : { provider }) });
       if (!this.owns(owner)) return;
       logger.info('validation result', { outcome: result.outcome });
       if (result.outcome === 'ok') {
@@ -411,6 +426,10 @@ export function codexSetupStatus(): CodexSetupStatus | undefined {
 
 export function startCodexBootPreCheck(): void {
   void host?.preCheck();
+}
+
+export function revalidateCodex(): void {
+  host?.revalidate();
 }
 
 export function registerCodexHost(options: CodexHostOptions = {}): CodexHost {

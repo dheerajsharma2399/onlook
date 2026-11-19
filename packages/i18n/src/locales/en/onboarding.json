@@ -99,6 +99,7 @@
   "onboarding.setup.codex.connected.plan": "ChatGPT",
   "onboarding.setup.codex.planLine": "ChatGPT {plan} plan",
   "onboarding.setup.codex.connected.apiKey": "API key",
+  "onboarding.setup.codex.connected.customProvider": "Custom provider",
   "onboarding.setup.claude.detail.invalidCode": "That code was not accepted. Try pasting it again.",
   "onboarding.setup.claude.detail.serverRejected": "The server turned the sign-in away.",
   "onboarding.setup.claude.detail.spawn": "Claude could not be started from here.",

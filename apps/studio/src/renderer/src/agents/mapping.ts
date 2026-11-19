@@ -3,6 +3,7 @@ import {
   CLAUDE_BEDROCK_PLAN,
   CLAUDE_CUSTOM_ENDPOINT_PLAN,
   CODEX_API_KEY_PLAN,
+  CODEX_CUSTOM_PROVIDER_PLAN,
   claudeDetailNeedsSignIn,
   type ClaudeSetupDetail,
   type ClaudeSetupState,
@@ -83,6 +84,7 @@ export interface AgentSetupStrings {
   /** `{plan}` template. */
   codexPlanLine: string;
   codexApiKeyPlan: string;
+  codexCustomProviderPlan: string;
 }
 
 export interface MappedSetup {
@@ -123,6 +125,7 @@ export const CODEX_DEVICE_AUTH_COMMAND = 'codex login --device-auth';
 /** A key account has no tier: capitalising it into the plan line reads "ChatGPT Api-key plan" (ONL-2186). */
 function codexPlanLabel(plan: string, strings: AgentSetupStrings): string {
   if (plan === CODEX_API_KEY_PLAN) return strings.codexApiKeyPlan;
+  if (plan === CODEX_CUSTOM_PROVIDER_PLAN) return strings.codexCustomProviderPlan;
   const trimmed = plan.trim();
   if (trimmed === '') return strings.codexPlan;
   return fill(strings.codexPlanLine, { plan: trimmed.charAt(0).toUpperCase() + trimmed.slice(1) });

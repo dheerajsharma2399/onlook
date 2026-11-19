@@ -258,6 +258,11 @@ export interface TelemetryEventMap {
     enabled: boolean;
     sound: NotificationSound;
   };
+  custom_provider_changed: {
+    action: 'saved' | 'removed';
+    model_count: number;
+    key_storage: 'encrypted' | 'plaintext' | 'none';
+  };
   app_opened: {
     startup_ms?: number;
     is_first_launch: boolean;

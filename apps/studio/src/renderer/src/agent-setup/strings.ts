@@ -49,5 +49,6 @@ export function agentSetupStrings(): AgentSetupStrings {
     codexPlan: t('onboarding.setup.codex.connected.plan'),
     codexPlanLine: t('onboarding.setup.codex.planLine'),
     codexApiKeyPlan: t('onboarding.setup.codex.connected.apiKey'),
+    codexCustomProviderPlan: t('onboarding.setup.codex.connected.customProvider'),
   };
 }

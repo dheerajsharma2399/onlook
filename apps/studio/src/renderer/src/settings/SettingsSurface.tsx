@@ -13,6 +13,7 @@ import { SettingsSections } from './SettingsPane.js';
 import type { ResetTipsRowProps } from './rows.js';
 import { useSettingsStore } from './store.js';
 import { ExperimentalPane, SettingsNavigation, type SettingsPaneId } from './ExperimentalPane.js';
+import { ProviderPane } from './ProviderPane.js';
 
 export function redetectForSetup(harness: HarnessId): void {
   const { claude, tapClaude, tapCodex } = useAgentSetupStore.getState();
@@ -94,7 +95,7 @@ export function SettingsSurface(): React.JSX.Element {
       <SettingsNavigation value={pane} onChange={setPane} />
       {pane === 'experimental' ? (
         <ExperimentalPane value={codeEnabled} onChange={(enabled) => void setCodePanel(enabled)} isSaving={isSaving} saveFailed={saveFailed} />
-      ) : <SettingsSections
+      ) : pane === 'provider' ? <ProviderPane /> : <SettingsSections
         agent={harness}
         notifications={notifications}
         analytics={{ consent: telemetryConsent, value: analyticsEnabled, onChange: (enabled) => void setAnalytics(enabled), isSaving: isAnalyticsSaving, saveFailed: analyticsSaveFailed }}

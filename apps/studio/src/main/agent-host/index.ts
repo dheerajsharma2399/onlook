@@ -1011,6 +1011,16 @@ export class AgentHost {
     this.emitMachine(derived, 'appserver');
   }
 
+  /** A running turn keeps its provider; its session restarts on the next prompt. */
+  noteCodexProviderChanged(): void {
+    for (const session of this.sessions.values()) {
+      if (session.harness !== 'appserver') continue;
+      const key = projectKey(session.cwd);
+      this.stale.add(key);
+      if (!this.busySessions.has(key)) void this.restartIfStale(session.cwd);
+    }
+  }
+
   snapshot(req: AgentSnapshotRequest = {}, cwd: string | undefined): AgentSnapshot {
     const session = cwd === undefined ? undefined : this.sessions.get(cwd);
     const waiting = cwd === undefined ? undefined : penView(this.pen(cwd));
@@ -1913,6 +1923,10 @@ export function releaseAgentWorkspace(cwd: string): Promise<void> {
 
 export function noteCodexSetupChanged(status: CodexSetupStatus): void {
   host?.noteCodexSetup(status);
+}
+
+export function noteCodexProviderChanged(): void {
+  host?.noteCodexProviderChanged();
 }
 
 export function noteClaudeSetupChanged(state: ClaudeSetupState, meta: { afterLogin: boolean }): void {

@@ -43,6 +43,7 @@ import { anyUnsavedCode } from './code/dirty.js';
 import { registerCodeHandlers } from './code/index.js';
 import { registerDraftsHandlers } from './drafts/index.js';
 import { registerSettingsHandlers } from './settings/index.js';
+import { registerCustomProviderHandlers } from './custom-provider/index.js';
 import { stampTipsBaseline } from './settings/state.js';
 import { projectCount } from './workspace/store.js';
 import { installFramePolicies, registerFrameHandlers } from './frames/index.js';
@@ -327,6 +328,7 @@ void app.whenReady().then(() => {
   registerDraftsHandlers();
   stampTipsBaseline(projectCount);
   registerSettingsHandlers();
+  registerCustomProviderHandlers();
   registerReportHandlers();
   // Before the agent host, whose tools write through the canvas host (ONL-1993).
   registerCanvasHandlers();

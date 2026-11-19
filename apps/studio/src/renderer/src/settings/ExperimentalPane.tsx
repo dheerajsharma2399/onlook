@@ -4,14 +4,15 @@ import { t } from '@studio/i18n';
 import { SETTINGS_CONTENT_WIDTH } from './SettingsPane.js';
 import { CodePanelRow, PANE_LEADING, SettingsSection, type SettingsSwitchProps } from './rows.js';
 
-export type SettingsPaneId = 'general' | 'experimental';
+export type SettingsPaneId = 'general' | 'provider' | 'experimental';
 
 export function SettingsNavigation({ value, onChange }: { value: SettingsPaneId; onChange: (pane: SettingsPaneId) => void }): React.JSX.Element {
   return (
     <ToggleButtonGroup label={t('settings.panes.label')} value={value} type="single" onChange={(next) => {
-      if (next === 'general' || next === 'experimental') onChange(next);
+      if (next === 'general' || next === 'provider' || next === 'experimental') onChange(next);
     }}>
       <ToggleButton value="general" label={t('settings.general')} data-testid="settings-nav-general" />
+      <ToggleButton value="provider" label={t('settings.provider')} data-testid="settings-nav-provider" />
       <ToggleButton value="experimental" label={t('settings.experimental')} data-testid="settings-nav-experimental" />
     </ToggleButtonGroup>
   );

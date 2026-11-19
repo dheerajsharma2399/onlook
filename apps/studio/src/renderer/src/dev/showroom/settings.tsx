@@ -8,6 +8,7 @@
 
 import { useLayoutEffect, useRef, useState } from 'react';
 import { ExperimentalPane, SettingsNavigation } from '../../settings/ExperimentalPane.js';
+import { ProviderPaneView } from '../../settings/ProviderPane.js';
 import { VStack } from '@astryxdesign/core/VStack';
 import {
   IDLE_CLAUDE_SETUP_STATE,
@@ -37,6 +38,9 @@ import type { Readiness } from '../../settings/readiness.js';
 import { AnalyticsRow, DefaultAgentRow, DefaultEffortRow, DefaultModelRow, SettingsSection } from '../../settings/rows.js';
 import { SETTINGS_CONTENT_WIDTH, SettingsPane } from '../../settings/SettingsPane.js';
 import { noop, type Category, type Gallery, type Story } from './Showroom.js';
+import type { SaveCustomProviderResult } from '@studio/events';
+
+const PROVIDER_SAVED = async (): Promise<SaveCustomProviderResult> => ({ ok: true, state: { models: [], hasKey: false, canEncrypt: true } });
 
 const BOX = { width: SETTINGS_CONTENT_WIDTH, flex: '0 0 auto' } as const;
 
@@ -291,6 +295,15 @@ const CATEGORIES: Category[] = [
         render: () => <ExperimentalStill value={value} state={state} />,
       }))),
     ]),
+  },
+  {
+    id: 'provider',
+    title: 'Custom provider — empty, saved with an encrypted key, and keyless Linux',
+    stories: [
+      { id: 'settings-provider-empty', title: 'Nothing saved', render: () => <VStack gap={6} style={BOX}><SettingsNavigation value="provider" onChange={noop} /><ProviderPaneView state={{ models: [], hasKey: false, canEncrypt: true }} onSave={PROVIDER_SAVED} onRemove={async () => undefined} /></VStack> },
+      { id: 'settings-provider-saved', title: 'Saved, key encrypted', render: () => <VStack style={BOX}><ProviderPaneView state={{ baseUrl: 'http://localhost:20128/v1', models: ['deepseek-agent', 'gpt-oss-120b'], hasKey: true, keyStorage: 'encrypted', canEncrypt: true }} onSave={PROVIDER_SAVED} onRemove={async () => undefined} /></VStack> },
+      { id: 'settings-provider-plaintext', title: 'Saved, key unencrypted', render: () => <VStack style={BOX}><ProviderPaneView state={{ baseUrl: 'http://localhost:20128/v1', models: ['deepseek-agent'], hasKey: true, keyStorage: 'plaintext', canEncrypt: false }} onSave={PROVIDER_SAVED} onRemove={async () => undefined} /></VStack> },
+    ],
   },
   {
     id: 'agent',

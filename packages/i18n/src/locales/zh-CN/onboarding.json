@@ -99,6 +99,7 @@
   "onboarding.setup.codex.connected.plan": "ChatGPT",
   "onboarding.setup.codex.planLine": "ChatGPT {plan} 套餐",
   "onboarding.setup.codex.connected.apiKey": "API 密钥",
+  "onboarding.setup.codex.connected.customProvider": "自定义提供商",
   "onboarding.setup.claude.detail.invalidCode": "授权码未被接受。请重新粘贴。",
   "onboarding.setup.claude.detail.serverRejected": "服务器拒绝了此次登录。",
   "onboarding.setup.claude.detail.spawn": "无法从这里启动 Claude。",

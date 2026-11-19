@@ -76,6 +76,8 @@ import { clearTranscript } from '../transcript.js';
 import { scheduleGc } from '../../images/store.js';
 import { AppServerTransport } from './transport.js';
 import type { SpawnOptions, TransportHandlers } from './transport.js';
+import { CODEX_CUSTOM_PROVIDER_ID, codexProviderConfig, codexProviderEnv } from '../../custom-provider/codex.js';
+import type { ActiveCustomProvider } from '../../custom-provider/store.js';
 
 const logger = log('agent-host');
 
@@ -110,6 +112,8 @@ export interface AppServerSessionOptions {
   readonly reasoningSummary?: string;
   readonly setupProblem?: string;
   readonly prepare?: () => Promise<void>;
+  /** Replaces ChatGPT: its models are the whole catalog, and no account is needed. */
+  readonly provider?: ActiveCustomProvider;
   readonly connect?: (
     handlers: TransportHandlers,
     spawn: () => Promise<SpawnOptions>,
@@ -808,6 +812,14 @@ export class AppServerSession implements AgentBackend {
   }
 
   private async publishModels(): Promise<void> {
+    const provider = this.opts.provider;
+    if (provider !== undefined) {
+      const models: ModelChoice[] = provider.models.map((value) => ({ value, displayName: value, supportsEffort: false, supportedEffortLevels: [] }));
+      const chosen = this.model !== undefined && provider.models.includes(this.model) ? this.model : provider.models[0];
+      this.model = chosen;
+      this.log.push({ type: 'session.settings', models, ...(chosen === undefined ? {} : { model: chosen }) });
+      return;
+    }
     try {
       const response = (await this.transport?.request('model/list', {})) as
         | { data?: WireModel[] }
@@ -916,6 +928,8 @@ export class AppServerSession implements AgentBackend {
     if (this.opts.reasoningSummary !== undefined) {
       config['model_reasoning_summary'] = this.opts.reasoningSummary;
     }
+    const provider = this.opts.provider;
+    if (provider !== undefined) Object.assign(config, codexProviderConfig(provider));
 
     const handlers: TransportHandlers = {
       onFrame: (_raw, frame) => {
@@ -1037,7 +1051,10 @@ export class AppServerSession implements AgentBackend {
       },
     };
     // No `codexHome`: a scratch one strips the user's auth, config.toml, MCP servers and skills.
-    const spawn = async (): Promise<SpawnOptions> => ({ bin: resolved.bin, cwd: this.cwd, config, env: await userEnv() });
+    const spawn = async (): Promise<SpawnOptions> => {
+      const env = await userEnv();
+      return { bin: resolved.bin, cwd: this.cwd, config, env: provider === undefined ? env : codexProviderEnv(provider, env) };
+    };
     this.transport =
       this.opts.connect === undefined
         ? new AppServerTransport(await spawn(), handlers)
@@ -1084,6 +1101,7 @@ export class AppServerSession implements AgentBackend {
       // Thread-level only; a resume cannot change the set.
       ...(toolSpecs.length === 0 ? {} : { dynamicTools: toolSpecs }),
       ...(this.model === undefined ? {} : { model: this.model }),
+      ...(provider === undefined ? {} : { modelProvider: CODEX_CUSTOM_PROVIDER_ID }),
     };
 
     const resumeId = storedAppServerThread(this.cwd);
@@ -1127,7 +1145,7 @@ export class AppServerSession implements AgentBackend {
       permissionModes: [...APPSERVER_PERMISSION_MODES],
     });
     // After the read-back, which would otherwise overwrite it (ONL-2183).
-    if (this.opts.effort !== undefined) {
+    if (this.opts.effort !== undefined && provider === undefined) {
       this.effort = this.opts.effort;
       this.log.push({ type: 'session.settings', effort: this.opts.effort });
     }

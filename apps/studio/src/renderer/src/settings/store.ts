@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import type { DefaultPatch, HarnessId, SettingsDefaults, SettingsState, NotificationAction, NotificationPreference, TipsPillDismissSource } from '@studio/events';
+import type { CustomProviderState, DefaultPatch, HarnessId, SaveCustomProviderRequest, SaveCustomProviderResult, SettingsDefaults, SettingsState, NotificationAction, NotificationPreference, TipsPillDismissSource } from '@studio/events';
 import { DEFAULT_NOTIFICATIONS, notificationPreference } from '@studio/events';
 import { DEFAULT_NOTIFICATION_SOUND, notificationSoundPreference, type NotificationSoundPreference } from '@studio/events';
 import { telemetryProjectFields } from '../workspace/store.js';
@@ -48,6 +48,10 @@ interface SettingsStore {
   dismissConnectorsNotice: () => Promise<void>;
   markTourSeen: () => Promise<void>;
   resetTips: () => Promise<void>;
+  customProvider: CustomProviderState;
+  /** Rejects on a refused request, so the pane can say the save failed. */
+  saveCustomProvider: (request: SaveCustomProviderRequest) => Promise<SaveCustomProviderResult>;
+  removeCustomProvider: () => Promise<void>;
 }
 
 let settingsRevision = 0;
@@ -63,6 +67,8 @@ function askDefaults(): (defaults: SettingsDefaults) => void {
     useSettingsStore.getState().applyDefaults(defaults);
   };
 }
+
+const NO_CUSTOM_PROVIDER: CustomProviderState = { models: [], hasKey: false, canEncrypt: true };
 
 const useSettingsStore = create<SettingsStore>()((set) => ({
   telemetryConsent: undefined,
@@ -175,6 +181,15 @@ const useSettingsStore = create<SettingsStore>()((set) => ({
     set({ isDiscoverResolvedInSession: true });
     useSettingsStore.getState().apply(await studio().settingsResolveDiscoverCta());
   },
+  customProvider: NO_CUSTOM_PROVIDER,
+  saveCustomProvider: async (request) => {
+    const result = await studio().customProviderSave(request);
+    set({ customProvider: result.state });
+    return result;
+  },
+  removeCustomProvider: async () => {
+    set({ customProvider: await studio().customProviderRemove() });
+  },
 }));
 
 export { useSettingsStore };
@@ -207,6 +222,13 @@ export function primeSettings(): Promise<void> {
   return priming;
 }
 
+export function primeCustomProvider(): Promise<void> {
+  return studio().customProviderState().then(
+    (customProvider) => useSettingsStore.setState({ customProvider }),
+    ignoreRefusal('settings', 'custom provider read'),
+  );
+}
+
 export function resetSettingsPrimeForTests(): void {
   priming = undefined;
   defaultsAsks.sent = 0;
@@ -215,5 +237,5 @@ export function resetSettingsPrimeForTests(): void {
   const { apply, applyDefaults } = useSettingsStore.getState();
   apply({});
   applyDefaults(NO_DEFAULTS);
-  useSettingsStore.setState({ isPrimed: false, isDiscoverResolvedInSession: false, isCodePanelSaving: false, codePanelSaveFailed: false, isAnalyticsSaving: false, analyticsSaveFailed: false });
+  useSettingsStore.setState({ isPrimed: false, isDiscoverResolvedInSession: false, isCodePanelSaving: false, codePanelSaveFailed: false, isAnalyticsSaving: false, analyticsSaveFailed: false, customProvider: NO_CUSTOM_PROVIDER });
 }

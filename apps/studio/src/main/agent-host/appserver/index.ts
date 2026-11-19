@@ -10,7 +10,7 @@ import { checkHealth, resolveCodex } from './resolve.js';
 import { AppServerSession } from './session.js';
 import type { AppServerSessionOptions } from './session.js';
 import { devSwitches } from '../../env/dev-switches.js';
-
+import { activeCustomProvider } from '../../custom-provider/store.js';
 
 const logger = log('agent-host');
 
@@ -32,8 +32,10 @@ export function createAppServerSession(
   const problem = devSwitches.codexRoot === undefined ? undefined : setupProblem(root);
   logger.info('preparing codex');
 
+  const provider = activeCustomProvider();
   return new AppServerSession({
     ...options,
+    ...(provider === undefined ? {} : { provider }),
     codexRoot: root ?? '',
     captureRoot: stateRoot(),
     prepare: prepareCodexForSession,

@@ -21,11 +21,14 @@ import {
   PANEL_DEFAULTS,
   type ImageBytes,
   type PenView,
+  type CustomProviderState,
   type SettingsDefaults,
   type StudioBridge,
 } from '@studio/events';
 import { LAB_EVENTS, LAB_LAST_SEQ } from './transcript.js';
 import { useWorkspaceStore } from '@renderer/workspace/store.js';
+
+const LAB_CUSTOM_PROVIDER: CustomProviderState = { models: [], hasKey: false, canEncrypt: true };
 
 /** `?pen=1` seeds a queued prompt behind a live turn; `?pen=hold` seeds one on its way back, with no turn live (ONL-2519). */
 const LAB_PEN_FLAG = new URLSearchParams(window.location.search).get('pen');
@@ -364,6 +367,9 @@ const answers: Omit<StudioBridge, Inert> & Partial<Pick<StudioBridge, Inert>> = 
   settingsResetTips: async () => ({}),
   settingsDefaults: async () => LAB_SETTINGS_DEFAULTS,
   settingsSetDefault: async () => LAB_SETTINGS_DEFAULTS,
+  customProviderState: async () => LAB_CUSTOM_PROVIDER,
+  customProviderSave: async (request) => ({ ok: true, state: { ...LAB_CUSTOM_PROVIDER, baseUrl: request.baseUrl, models: request.models } }),
+  customProviderRemove: async () => LAB_CUSTOM_PROVIDER,
 
   takeDraftRequest: () => Promise.resolve(false),
   takeSettingsRequest: () => Promise.resolve(false),

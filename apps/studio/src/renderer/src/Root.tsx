@@ -28,7 +28,7 @@ import { primeArtifactListing } from './canvas/artifact/listing.js';
 import { ReportDialog } from './report/ReportDialog.js';
 import { SettingsDialog } from './settings/SettingsDialog.js';
 import { openSettings } from './settings/settingsDialogStore.js';
-import { primeSettings, useSettingsStore } from './settings/store.js';
+import { primeCustomProvider, primeSettings, useSettingsStore } from './settings/store.js';
 import { ConsentGate } from './telemetry/Consent.js';
 import { primeGitStatus, watchOpenWorktree } from './git-status/store.js';
 import { BlendedWindowBar } from './topbar/slots.js';
@@ -142,6 +142,7 @@ export function Root(): React.JSX.Element {
     void primeArtifactListing();
     /* Awaited with the list so the Agent row never paints blank and then flips (ONL-2115). */
     const settingsReady = primeSettings();
+    void primeCustomProvider();
     /* The first screen waits on this: a surface it gates would otherwise paint and then disappear (ONL-2661). */
     const flagsReady = primeFlags();
     let stopGithub: (() => void) | undefined;

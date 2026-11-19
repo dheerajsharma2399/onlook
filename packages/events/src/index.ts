@@ -10,6 +10,7 @@ export * from './claude-setup.js';
 export * from './code.js';
 export * from './codex.js';
 export * from './connectors.js';
+export * from './custom-provider.js';
 export * from './debug.js';
 export * from './drafts.js';
 export * from './attachments.js';
